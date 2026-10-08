@@ -52,16 +52,18 @@ Chapter notification (Idea 2 on the ticket) stays in scope, but it is a separate
 
 ## Status
 
-- 2026-10-08: vision repo opened. Source map and license landed. No extension code yet.
-- MVP (Naver text + OCR path) is being built in another thread and will be committed here later.
-- Name is a placeholder.
+- 2026-10-08: vision repo opened. Source map and license landed.
+- 2026-10-08 later: layer-1 marker committed under `marker/`. Owner tested the live preview and it does **not** work. Leave it. Next task is test and harden detection. Do not start translation and do not rewrite the detector. Record: [docs/session-2026-10-08-handoff.md](docs/session-2026-10-08-handoff.md).
+- Name is a placeholder. The extension itself is still not in this repo.
 
 ## Layout
 
 ```
-docs/SOURCES.md            ranked target sources
-docs/adapter-contract.md   interface the MVP and later adapters share
-extension/                 empty until the MVP commit
+docs/SOURCES.md                         ranked target sources
+docs/adapter-contract.md                interface later adapters share
+docs/session-2026-10-08-handoff.md      marker slice, owner rejection, retro, next task
+marker/                                 layer-1 detector and the preview page (not the extension)
+extension/                              still empty
 ```
 
 ## License
