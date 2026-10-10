@@ -5,3 +5,8 @@ dist/
 .env
 .env.*
 extension/web-ext-artifacts/
+
+# M1 local capture workspace — publisher episode bytes stay here, never committed (README limit)
+work/
+m1/work/
+*.captured.png

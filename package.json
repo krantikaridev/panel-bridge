@@ -1,0 +1,29 @@
+{
+  "name": "panel-bridge",
+  "version": "0.0.0",
+  "description": "Working name. Rename later. This repository is the home for the reader extension; the MVP being built in the other thread can land here when it is ready.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node --experimental-strip-types --test m1/detect.test.ts marker/bubbles.test.ts",
+    "demo:m1": "node --experimental-strip-types m1/demo.mts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krantikaridev/panel-bridge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/krantikaridev/panel-bridge/issues"
+  },
+  "homepage": "https://github.com/krantikaridev/panel-bridge#readme",
+  "dependencies": {
+    "playwright-core": "^1.64.0",
+    "pngjs": "^7.0.0"
+  }
+}
