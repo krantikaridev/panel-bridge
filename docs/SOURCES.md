@@ -96,4 +96,4 @@ Lezhin KR, Ridibooks, Bomtoon, Sunday Webry, KadoComi, Pixiv Comic. Build these 
 
 ## Existing tools, so we do not pretend this is empty
 
-Chapter trackers and AI readers already exist (publisher apps, Manga Plus, and third-party importers such as OpenToon and Madomi that accept a raw URL). The gap this repo is for: an extension on the publisher page itself, with per-site adapters, a local cache, and a noncommercial license. The MVP thread owns the Naver proof. This file owns the order of the next hosts.
+Chapter trackers and AI readers already exist (publisher apps, Manga Plus, and third-party importers such as OpenToon and Madomi that accept a raw URL). The gap this repo is for: an extension on the publisher page itself, with per-site adapters, a local cache, and an MIT license. The M1 work in `m1/` owns the Naver proof. This file owns the order of the next hosts.

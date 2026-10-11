@@ -1,4 +1,4 @@
-import type { Raster } from "./bubbles";
+import type { Raster } from "./bubbles.js";
 
 const W = 720;
 const H = 2860;

@@ -26,6 +26,6 @@ Five tests passed in the sandbox on 2026-10-08. That is not owner acceptance.
 - Iframe `comic.naver.com` or `m.comic.naver.com`.
 - Auto-run detection on drop.
 - Turn layer 1 into six model calls.
-- Change the PolyForm Noncommercial license.
+- Change the license.
 
-Full session record: [../docs/session-2026-10-08-handoff.md](../docs/session-2026-10-08-handoff.md).
+

@@ -123,7 +123,7 @@ export function classify(img: Raster, poly: Pt[]): BubbleType {
   return whiteTextFrac(img, poly, bbox) > 0.02 ? 3 : 1;
 }
 
-function covered(x: number, y: number, polys: Pt[]) {
+function covered(x: number, y: number, polys: Pt[][]) {
   for (const p of polys) if (pip(p, x, y)) return true;
   return false;
 }
@@ -131,7 +131,7 @@ function covered(x: number, y: number, polys: Pt[]) {
 // Type 4: achromatic glyph strokes (black or white text) sitting on colourful art,
 // outside any balloon. Achromatic-strong mask -> dilate -> components -> keep the ones
 // whose padded neighbourhood is mostly colourful and that are text-shaped.
-export function detectBareText(img: Raster, balloonPolys: Pt[]): Detection[] {
+export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
   const { width: W, height: H } = img;
   const strong = new Uint8Array(W * H);
   for (let y = 0; y < H; y++)

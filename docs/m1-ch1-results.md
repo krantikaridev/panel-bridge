@@ -1,6 +1,7 @@
 # M1 results — Earth Game ch.1 (Naver, titleId 817032, no 1)
 
-Reproduce: `npm run demo:m1` (lane Chrome on CDP 9303). Output lands in the gitignored
+Reproduce: `npm run demo:m1` (launches its own headless Chromium; set `M1_CDP` to
+attach to a running Chrome instead). Output lands in the gitignored
 `work/` dir. **The outlined chapter screenshots are NOT committed** — this repo is public
 and the README forbids rehosting publisher pages / shipping episode bytes. `work/proof/section-*.png`
 holds the full scrolled-section sheets for a human who can open the page; the numbers below are
@@ -40,11 +41,11 @@ where type 4 is least reliable.
 - Type 1 vs type 3 is an edge-quality split (gradient/rough vs crisp); both are "black bubble";
   a fuzzy black balloon with white text can land as either.
 - A couple of stray type-2 hits appear on plain narration words with no real balloon (a known
-  `findWhite` false positive in `marker/bubbles.ts`, left untouched per the 8 Oct handoff).
-- No OCR / translation — that is the next milestone, deliberately not started (handoff rule).
+  `findWhite` false positive in `marker/bubbles.ts`, left untouched by decision on 8 Oct).
+- No OCR / translation — that is the next milestone, deliberately not started.
 
-## Tool-first (R21)
+## Tool-first
 
-OpenCV/MSER was run in Docker (R22) on the same cuts and compared; see
+OpenCV/MSER was run in Docker on the same cuts and compared; see
 [m1-detector-trials.md](m1-detector-trials.md). It yields 11.3 raw text boxes/cut with no bubble
 type, which is why the demo builds on the existing balloon geometry instead.

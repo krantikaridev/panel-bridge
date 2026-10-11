@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Tool-first (R21) trial: classic OpenCV text-region detection (MSER + morphology)
-as a candidate speech-bubble/text detector, run in Docker (R22).
+"""Tool-first trial: classic OpenCV text-region detection (MSER + morphology)
+as a candidate speech-bubble/text detector, run in Docker.
 Reads PNG paths from argv, prints a JSON line per image: bounding boxes of text
 regions + counts, so we can compare its recall against the JS detector in m1/lib/detect.mts.
 No model download; pure OpenCV, small image.

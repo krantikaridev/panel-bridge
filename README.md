@@ -1,8 +1,48 @@
 # panel-bridge
 
-Working name. Rename later. This repository is the home for the reader extension; the MVP being built in the other thread can land here when it is ready.
+![test](https://github.com/krantikaridev/panel-bridge/actions/workflows/test.yml/badge.svg)
 
-A client-side browser extension that helps you read publisher pages you already have access to, in English, when the official English release is behind or missing.
+Read publisher webcomics you already have access to, in English, when the official English release is behind or missing — a client-side extension that finds the speech bubbles on the page you opened and translates them in place.
+
+![Four bubble types, outlined by the M1 detector](m1/fixtures/legend-outlined.png)
+
+Each color is one detected bubble type; the detector's job at M1 is to find every balloon on a chapter cut and label it, before OCR and translation touch it.
+
+## Quickstart
+
+```bash
+npm install          # also downloads a Chromium for the demo
+npm test             # 11 tests, synthetic fixtures only, no browser needed
+npm run demo:m1      # opens Earth Game ch.1 on Naver, outlines every bubble
+```
+
+The demo launches its own headless Chromium. Set `M1_CDP=http://127.0.0.1:<port>` to attach to a Chrome you already run instead. Proof sheets and a counts table land in the gitignored `work/` — publisher images never enter git. Full walkthrough: [m1/README.md](m1/README.md).
+
+## The four bubble types
+
+| Type | Color | Meaning |
+| --- | --- | --- |
+| 1 | cyan `#00E5FF` | black bubble, rough / gradient-faded edge |
+| 2 | red `#FF3B30` | white bubble, black text |
+| 3 | yellow `#FFD60A` | black bubble, white text |
+| 4 | green `#34C759` | text painted on the art, no bubble |
+
+## How detection is graded
+
+Two layers, no invented numbers:
+
+1. **Unit tests** (`npm test`) — synthetic, procedurally drawn fixtures only (`m1/detect.test.ts`, `marker/bubbles.test.ts`): each of the four types must be marked, and negatives (a solid shadow, a white balloon when testing black, loose text) must not be.
+2. **Live-page trials** (`m1/detector-trials/`) — the detector's per-cut counts on the real Earth Game ch.1 (134 cuts) are recorded in [docs/m1-ch1-results.md](docs/m1-ch1-results.md) and compared against an OpenCV MSER baseline run in Docker ([docs/m1-detector-trials.md](docs/m1-detector-trials.md)). A detection only counts as progress when it beats the baseline on the thing M1 actually requires: bubble-level outlines with a type, not text fragments.
+
+## Roadmap
+
+- **M1 — detection** (this release, v0.1.0): find and outline every bubble on a live Naver chapter, per type. Landed.
+- **M2 — OCR**: read the text inside each detected balloon (Hangul / Japanese / Chinese). Detector trials already narrowed the candidate models.
+- **M3 — translation overlay**: batched, cached, in-place replacement on the page — the actual extension, behind the per-site adapter contract ([docs/adapter-contract.md](docs/adapter-contract.md)).
+
+Planning lives in the public issue tree: epic [#1](https://github.com/krantikaridev/panel-bridge/issues/1) → feature [#2](https://github.com/krantikaridev/panel-bridge/issues/2) → stories #3–#7.
+
+## Why this exists
 
 Naver Webtoon is wave 0. The next targets are the platforms below, chosen because their English catalogues lag, shrink, or never existed.
 
@@ -15,9 +55,7 @@ Official English is the bottleneck, not the art.
 - Chinese manhua is the largest permanent hole. Bilibili Comics shut its international app in February 2024. Tencent Comics (ac.qq.com) has no English edition. Kuaikan's English slice on INKR is a rotating subset and is usually months behind.
 - Japanese Jump flagships are often simulpub on Manga Plus and VIZ. The lag is in the rest of the catalogue: Jump+ series that drop mid-run, Rookie and one-shots without overseas consent, Magazine Pocket web originals, Tonari no Young Jump, and light-novel adaptations on KadoComi.
 
-Seed titles from the original note: Hardcore Leveling Warrior / Earth Game, plus the series already followed by hand (One Piece, Hunter x Hunter, Berserk, Teenage Mercenary, and irregular Naver schedules).
-
-Tracking issue: [krantikaridev/self#881](https://github.com/krantikaridev/self/issues/881).
+Seed titles: Hardcore Leveling Warrior / Earth Game, plus the series already followed by hand (One Piece, Hunter x Hunter, Berserk, Teenage Mercenary, and irregular Naver schedules).
 
 ## What it is
 
@@ -32,7 +70,7 @@ Tracking issue: [krantikaridev/self#881](https://github.com/krantikaridev/self/i
 - Not a mirror, scraper farm, or chapter redistributor. Pages are not rehosted.
 - Not a paywall bypass. If a chapter is locked, the extension does not unlock it.
 - Not a replacement for simulpub. If Manga Plus or WEBTOON already has the chapter the same day, that is the preferred read.
-- Not a commercial product under this license. See License.
+- Not a commercial product; the code is MIT, the comics are not.
 
 Copyright in the comics stays with the publishers and creators. The extension translates a page the user is already entitled to view, in the user's browser. Rights, ToS, and login walls still have to be checked per adapter before that adapter is enabled.
 
@@ -42,7 +80,7 @@ Full notes, URLs, and why each one lags: [docs/SOURCES.md](docs/SOURCES.md).
 
 | Wave | Sources | Why next |
 | --- | --- | --- |
-| 0, in progress | Naver Webtoon (`comic.naver.com`) | MVP in the other thread. Largest Korean free catalogue. English is a licensed slice plus Fast Pass. |
+| 0, in progress | Naver Webtoon (`comic.naver.com`) | MVP demo (`m1/`) in this repo. Largest Korean free catalogue. English is a licensed slice plus Fast Pass. |
 | 1 | KakaoPage, Kakao Webtoon | Naver's rival. English storefronts shutting down by end of 2026. Same-day Korean chapters, wait-or-pay. |
 | 2 | Kuaikan, Tencent Comics (ac.qq), Bilibili Manhua | Biggest English hole. EN Bilibili app is gone. ac.qq has no English edition. |
 | 3 | Shonen Jump+, Magazine Pocket, Tonari no Young Jump | Jump flagships are often simulpub. These cover the catalog gaps, Kodansha web originals, and Young Jump (One-Punch Man and company). |
@@ -52,30 +90,25 @@ Chapter notification (Idea 2 on the ticket) stays in scope, but it is a separate
 
 ## Status
 
-- 2026-10-08: vision repo opened. Source map and license landed.
-- 2026-10-08 later: layer-1 marker committed under `marker/`. Owner tested the live preview and it does **not** work. Leave it. Next task is test and harden detection. Do not start translation and do not rewrite the detector. Record: [docs/session-2026-10-08-handoff.md](docs/session-2026-10-08-handoff.md).
-- 2026-10-10: **M1 bubble-detection demo** landed under `m1/` — `npm run demo:m1` opens Earth Game ch.1 on the live Naver reader (lane headless Chrome, CDP 9303), outlines every bubble in one of four type colors, and writes proof sheets + a counts table to the gitignored `work/`. Planning tree: epic [#1](https://github.com/krantikaridev/panel-bridge/issues/1) → feature [#2](https://github.com/krantikaridev/panel-bridge/issues/2) → stories #3–#7. Results + honest limits: [docs/m1-ch1-results.md](docs/m1-ch1-results.md); tool-first detector trials: [docs/m1-detector-trials.md](docs/m1-detector-trials.md).
-- Name is a placeholder. The extension itself is still not in this repo.
+- 2026-10-08: vision repo opened. Source map and adapter contract landed.
+- 2026-10-08 later: layer-1 marker committed under `marker/`. The live preview did not hold up; the detector logic survived and is now wrapped by `m1/`.
+- 2026-10-10: **M1 bubble-detection demo** landed under `m1/` — `npm run demo:m1` opens Earth Game ch.1 on the live Naver reader, outlines every bubble in one of four type colors, and writes proof sheets + a counts table to the gitignored `work/`. Results + honest limits: [docs/m1-ch1-results.md](docs/m1-ch1-results.md); tool-first detector trials: [docs/m1-detector-trials.md](docs/m1-detector-trials.md).
+- **v0.1.0**: M1 is the shipped milestone. The extension shell (M3) is still not in this repo.
 
 ## Layout
 
 ```
 docs/SOURCES.md                         ranked target sources
 docs/adapter-contract.md                interface later adapters share
-docs/session-2026-10-08-handoff.md      marker slice, owner rejection, retro, next task
 docs/m1-ch1-results.md                  M1 live-run counts + honest limits
-docs/m1-detector-trials.md              tool-first (R21) detector comparison, Docker (R22)
+docs/m1-detector-trials.md              tool-first detector comparison (OpenCV baseline in Docker)
 marker/                                 layer-1 detector and the preview page (not the extension)
 m1/                                     M1 demo: capture -> detect -> outline -> counts (npm run demo:m1)
-extension/                              still empty
+extension/                              still empty (M3)
 ```
 
 ## License
 
-PolyForm Noncommercial 1.0.0. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
-MIT was the first choice and was rejected on purpose. MIT allows selling the software. This project should stay forkable, modifiable, and usable for personal and noncommercial study, and closed to commercial use. PolyForm Noncommercial is the most flexible license that still draws that line: any noncommercial purpose is permitted, including changes and redistribution, and commercial use is not.
-
-It is source-available, not an OSI-approved open-source license. That is the intended tradeoff.
-
-Required Notice: Copyright (c) 2026 Madan Meena (https://github.com/krantikaridev)
+The code is open source. The comics are not: copyright in every panel stays with its publishers and creators, and this repo commits no episode art — only code, synthetic fixtures, and the legend image above. Rights, ToS, and login walls still have to be checked per adapter before that adapter is enabled.
