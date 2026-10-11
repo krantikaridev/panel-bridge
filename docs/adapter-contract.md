@@ -1,6 +1,6 @@
 # Adapter contract
 
-The Naver MVP in the other thread should implement this shape when it lands. Later sources are new adapters, not forks of the Naver code.
+The Naver MVP (`m1/`) should implement this shape as it grows into the extension. Later sources are new adapters, not forks of the Naver code.
 
 ```ts
 export interface SourceAdapter {

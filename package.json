@@ -1,23 +1,28 @@
 {
   "name": "panel-bridge",
-  "version": "0.0.0",
-  "description": "Working name. Rename later. This repository is the home for the reader extension; the MVP being built in the other thread can land here when it is ready.",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Client-side browser extension that translates speech bubbles on webcomic pages you can already open — M1: detect and outline every bubble on a live Naver Webtoon chapter.",
+  "type": "module",
+  "main": "m1/demo.mts",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "test": "node --experimental-strip-types --test m1/detect.test.ts marker/bubbles.test.ts",
-    "demo:m1": "node --experimental-strip-types m1/demo.mts"
+    "typecheck": "tsc -p tsconfig.json",
+    "demo:m1": "node --experimental-strip-types m1/demo.mts",
+    "postinstall": "playwright install chromium || echo 'panel-bridge: Chromium download skipped — run `npx playwright install chromium` before `npm run demo:m1`, or set M1_CDP to a running Chrome'"
+  },
+  "engines": {
+    "node": ">=22.6.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/krantikaridev/panel-bridge.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "SEE LICENSE IN LICENSE",
-  "type": "module",
+  "keywords": ["webtoon", "manga", "browser-extension", "speech-bubbles", "ocr", "translation"],
+  "author": "krantikaridev contributors",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/krantikaridev/panel-bridge/issues"
   },
@@ -25,5 +30,9 @@
   "dependencies": {
     "playwright-core": "^1.64.0",
     "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^5.9.3"
   }
 }

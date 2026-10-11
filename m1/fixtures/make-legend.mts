@@ -40,7 +40,7 @@ const dets = [
   { type: classify(img, poly(160, 120, 120, 80)), polygon: poly(160, 120, 120, 80), bbox: { x: 40, y: 40, w: 240, h: 160 } },
   { type: classify(img, poly(460, 120, 120, 80)), polygon: poly(460, 120, 120, 80), bbox: { x: 340, y: 40, w: 240, h: 160 } },
   { type: classify(img, poly(160, 360, 120, 80)), polygon: poly(160, 360, 120, 80), bbox: { x: 40, y: 280, w: 240, h: 160 } },
-  { type: 4 as BubbleType, polygon: [[360, 340], [560, 340], [560, 380], [360, 380]], bbox: { x: 360, y: 340, w: 200, h: 40 } },
+  { type: 4 as BubbleType, polygon: [[360, 340], [560, 340], [560, 380], [360, 380]] as Pt[], bbox: { x: 360, y: 340, w: 200, h: 40 } },
 ];
 const out = render(img, dets, 4);
 // labels strip at bottom
