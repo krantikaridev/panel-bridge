@@ -11,7 +11,7 @@
     "test": "node --experimental-strip-types --test m1/detect.test.ts marker/bubbles.test.ts",
     "typecheck": "tsc -p tsconfig.json",
     "demo:m1": "node --experimental-strip-types m1/demo.mts",
-    "postinstall": "playwright install chromium || echo 'panel-bridge: Chromium download skipped — run `npx playwright install chromium` before `npm run demo:m1`, or set M1_CDP to a running Chrome'"
+    "postinstall": "playwright-core install chromium || echo 'panel-bridge: Chromium download skipped — run `npx playwright-core install chromium` before `npm run demo:m1`, or set M1_CDP to a running Chrome'"
   },
   "engines": {
     "node": ">=22.6.0"

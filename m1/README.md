@@ -9,7 +9,7 @@ npm install
 npm run demo:m1
 ```
 
-By default the demo launches its own headless Chromium (installed by the `postinstall` step; rerun with `npx playwright install chromium` if you skipped it). To attach to an already-running Chrome instead, set `M1_CDP=http://127.0.0.1:<port>`. Override the target series with `M1_TITLE_ID` / `M1_NO`.
+By default the demo launches its own headless Chromium (installed by the `postinstall` step; rerun with `npx playwright-core install chromium` if you skipped it). To attach to an already-running Chrome instead, set `M1_CDP=http://127.0.0.1:<port>`. Override the target series with `M1_TITLE_ID` / `M1_NO`.
 
 Output goes to `work/` (gitignored):
 

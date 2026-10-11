@@ -1,21 +1,27 @@
 // M1 capture: read the live Naver reader page in headless Chromium and screenshot
 // each episode cut the page already loaded. If M1_CDP is set, attach to that running
 // Chrome; otherwise launch our own headless browser (see package.json "postinstall"
-// and `npx playwright install chromium`).
+// and `npx playwright-core install chromium`).
 // No new chapter requests, no rehosting, no paywall bypass. Publisher bytes go to
 // the gitignored work/ dir only.
 import { chromium } from "playwright-core";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
-async function openBrowser() {
+async function openContext() {
   const cdp = process.env.M1_CDP;
-  if (cdp) return chromium.connectOverCDP(cdp);
-  try {
-    return await chromium.launch({ headless: true, channel: "chrome" });
-  } catch {
-    return await chromium.launch({ headless: true });
+  if (cdp) {
+    const browser = await chromium.connectOverCDP(cdp);
+    // the attached Chrome already holds the logged-in context; reuse it
+    return { browser, ctx: browser.contexts()[0] ?? (await browser.newContext()) };
   }
+  let browser;
+  try {
+    browser = await chromium.launch({ headless: true, channel: "chrome" });
+  } catch {
+    browser = await chromium.launch({ headless: true });
+  }
+  return { browser, ctx: await browser.newContext() };
 }
 
 // Episode cuts on the desktop reader: image-comic.pstatic.net/webtoon/<titleId>/<no>/..._IMAG01_<k>.jpg
@@ -28,8 +34,7 @@ export function cutMatcher(titleId, no) {
 export async function captureChapter({ titleId, no, outDir, maxScroll = 120, settleMs = 250 }) {
   await mkdir(outDir, { recursive: true });
   const dir = resolve(outDir);
-  const browser = await openBrowser();
-  const ctx = browser.contexts()[0];
+  const { browser, ctx } = await openContext();
   const page = await ctx.newPage();
   try {
     await page.setViewportSize({ width: 900, height: 1400 });
