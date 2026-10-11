@@ -54,6 +54,7 @@ Chapter notification (Idea 2 on the ticket) stays in scope, but it is a separate
 
 - 2026-10-08: vision repo opened. Source map and license landed.
 - 2026-10-08 later: layer-1 marker committed under `marker/`. Owner tested the live preview and it does **not** work. Leave it. Next task is test and harden detection. Do not start translation and do not rewrite the detector. Record: [docs/session-2026-10-08-handoff.md](docs/session-2026-10-08-handoff.md).
+- 2026-10-10: **M1 bubble-detection demo** landed under `m1/` — `npm run demo:m1` opens Earth Game ch.1 on the live Naver reader (lane headless Chrome, CDP 9303), outlines every bubble in one of four type colors, and writes proof sheets + a counts table to the gitignored `work/`. Planning tree: epic [#1](https://github.com/krantikaridev/panel-bridge/issues/1) → feature [#2](https://github.com/krantikaridev/panel-bridge/issues/2) → stories #3–#7. Results + honest limits: [docs/m1-ch1-results.md](docs/m1-ch1-results.md); tool-first detector trials: [docs/m1-detector-trials.md](docs/m1-detector-trials.md).
 - Name is a placeholder. The extension itself is still not in this repo.
 
 ## Layout
@@ -62,7 +63,10 @@ Chapter notification (Idea 2 on the ticket) stays in scope, but it is a separate
 docs/SOURCES.md                         ranked target sources
 docs/adapter-contract.md                interface later adapters share
 docs/session-2026-10-08-handoff.md      marker slice, owner rejection, retro, next task
+docs/m1-ch1-results.md                  M1 live-run counts + honest limits
+docs/m1-detector-trials.md              tool-first (R21) detector comparison, Docker (R22)
 marker/                                 layer-1 detector and the preview page (not the extension)
+m1/                                     M1 demo: capture -> detect -> outline -> counts (npm run demo:m1)
 extension/                              still empty
 ```
 
