@@ -1,7 +1,7 @@
 // M1 capture: read the live Naver reader page in headless Chromium and screenshot
 // each episode cut the page already loaded. If M1_CDP is set, attach to that running
 // Chrome; otherwise launch our own headless browser (see package.json "postinstall"
-// and `npx playwright install chromium`).
+// and `npx playwright-core install chromium`).
 // No new chapter requests, no rehosting, no paywall bypass. Publisher bytes go to
 // the gitignored work/ dir only.
 import { chromium } from "playwright-core";
