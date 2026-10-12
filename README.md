@@ -6,6 +6,10 @@ Read publisher webcomics you already have access to, in English, when the offici
 
 ![Four bubble types, outlined by the M1 detector](m1/fixtures/legend-outlined.png)
 
+![M1 demo — synthetic fixtures, bubbles found and outlined](https://github.com/mmmiitr/panel-bridge/releases/download/v0.1.0/demo.gif)
+
+**Why it matters:** Official English translations lag, and this helps you read the page you already opened, without rehosting or bypassing anything.
+
 Each color is one detected bubble type; the detector's job at M1 is to find every balloon on a chapter cut and label it, before OCR and translation touch it.
 
 ## Quickstart
