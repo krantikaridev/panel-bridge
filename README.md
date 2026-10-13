@@ -94,6 +94,7 @@ Chapter notification (Idea 2 on the ticket) stays in scope, but it is a separate
 
 ## Status
 
+- 2026-10-13: review pass — retro on the grok.com build vs a lane build: [docs/RETRO-2026-10-08.md](docs/RETRO-2026-10-08.md).
 - 2026-10-08: vision repo opened. Source map and adapter contract landed.
 - 2026-10-08 later: layer-1 marker committed under `marker/`. The live preview did not hold up; the detector logic survived and is now wrapped by `m1/`.
 - 2026-10-10: **M1 bubble-detection demo** landed under `m1/` — `npm run demo:m1` opens Earth Game ch.1 on the live Naver reader, outlines every bubble in one of four type colors, and writes proof sheets + a counts table to the gitignored `work/`. Results + honest limits: [docs/m1-ch1-results.md](docs/m1-ch1-results.md); tool-first detector trials: [docs/m1-detector-trials.md](docs/m1-detector-trials.md).
