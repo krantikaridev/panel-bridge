@@ -24,35 +24,45 @@ async function openContext() {
   return { browser, ctx: await browser.newContext() };
 }
 
-// Episode cuts on the desktop reader: image-comic.pstatic.net/webtoon/<titleId>/<no>/..._IMAG01_<k>.jpg
-// The age-rating card and promos share the host, so match the webtoon path + _IMAG and a tall cut.
-export function cutMatcher(titleId, no) {
-  const re = new RegExp(`/webtoon/${titleId}/${no}/.*_IMAG01_\\d+\\.(jpe?g|png)$`);
+import { CURRENT } from "../config.mjs";
+
+// Episode cuts on the desktop reader. Pattern and chapter URL come from config
+// so a Kakao or Chinese-manhua page is a config change, not a code change.
+export function cutMatcher(titleId, no, patternFn = CURRENT.cutPattern) {
+  const re = patternFn(titleId, no);
   return (src) => re.test(src);
 }
 
-export async function captureChapter({ titleId, no, outDir, maxScroll = 120, settleMs = 250 }) {
+export async function captureChapter({
+  titleId,
+  no,
+  outDir,
+  maxScroll = 120,
+  settleMs = 250,
+  adapter = CURRENT,
+}) {
   await mkdir(outDir, { recursive: true });
   const dir = resolve(outDir);
   const { browser, ctx } = await openContext();
   const page = await ctx.newPage();
   try {
     await page.setViewportSize({ width: 900, height: 1400 });
-    const url = `https://comic.naver.com/webtoon/detail?titleId=${titleId}&no=${no}`;
+    const url = adapter.chapterUrl(titleId, no);
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-    const human = await page.evaluate(() => {
+    const human = await page.evaluate((gateSrc) => {
       // Gate check applies to the viewer area only — the page footer contains
       // legal text (전용상품권약관, 결제…) that would otherwise false-positive.
       const root = document.querySelector("#content") || document.querySelector("main") || document.body;
       const imgs = [...document.querySelectorAll("img")].filter((im) => /_IMAG01_\d+\.(jpe?g|png)$/.test(im.currentSrc || im.src));
       if (imgs.some((im) => im.naturalHeight > 400)) return false; // cuts rendered -> not gated
-      return /captcha|비정상적인 접근|로그인 후 이용|이용권|결제가 필요|잠겨|locked/i.test(root.innerText || "");
-    });
+      const gate = new RegExp(gateSrc, "i");
+      return gate.test(root.innerText || "");
+    }, adapter.gateSignals.source);
     if (human) throw new Error("WAIT: page looks gated or captcha'd — this run stops and asks a human, it does not push through");
 
     // Force every lazy cut to load by scrolling to the bottom of the infinite strip.
-    const match = cutMatcher(titleId, no);
+    const match = cutMatcher(titleId, no, adapter.cutPattern);
     let prev = -1, stable = 0;
     for (let i = 0; i < maxScroll; i++) {
       await page.mouse.wheel(0, 1400);
