@@ -117,3 +117,24 @@ test("end-to-end detect on a real findBubbles fixture: dark balloon + white ball
   const types = new Set(dets.map((d) => d.type));
   assert.ok(types.has(2) || types.has(3), "black or white balloon classified");
 });
+
+test("detectBareText finds black dialogue on monochrome art (colour gate dropped)", () => {
+  const img = blank(300, 200, [40, 40, 40]); // dark B&W art, no chroma
+  for (let i = 0; i < 6; i++) fillRect(img, 60 + i * 22, 60, 8, 16, [16, 16, 16]);
+  const hits = detectBareText(img, []);
+  assert.ok(hits.length >= 1, "expected bare-text detection on monochrome background");
+  assert.ok(hits.every((h) => h.type === 4));
+});
+
+test("detectBareText merges fragmented text into a caption/panel box", () => {
+  const img = blank(400, 200);
+  artBg(img);
+  // three short text runs that should merge into one panel-like box
+  for (let row = 0; row < 3; row++) {
+    for (let i = 0; i < 5; i++) fillRect(img, 80 + i * 20, 50 + row * 28, 10, 14, [16, 16, 16]);
+  }
+  const hits = detectBareText(img, []);
+  assert.ok(hits.length >= 1, "expected at least one merged caption detection");
+  const big = hits.some((h) => h.bbox.h >= 50 && h.bbox.w >= 80);
+  assert.ok(big, "fragments should be merged into a larger caption/panel box");
+});
