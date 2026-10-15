@@ -20,32 +20,7 @@ export const TYPE_COLOR: Record<BubbleType, [number, number, number]> = {
   4: [52, 199, 89], // green — text with no bubble, on the art
 };
 
-function luma(r: number, g: number, b: number) {
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-function chroma(r: number, g: number, b: number) {
-  return Math.max(r, g, b) - Math.min(r, g, b);
-}
-function px(img: Raster, x: number, y: number) {
-  const i = (y * img.width + x) * 4;
-  return { r: img.data[i], g: img.data[i + 1], b: img.data[i + 2] };
-}
-function bboxOf(poly: Pt[]) {
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const [x, y] of poly) {
-    if (x < minX) minX = x; if (y < minY) minY = y;
-    if (x > maxX) maxX = x; if (y > maxY) maxY = y;
-  }
-  return { x: Math.round(minX), y: Math.round(minY), w: Math.round(maxX - minX), h: Math.round(maxY - minY) };
-}
-function pip(poly: Pt[], x: number, y: number) {
-  let inside = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i], [xj, yj] = poly[j];
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
+import { luma, chroma, px, bboxOf, pip } from "./preprocess.mts";
 
 function sampleInterior(img: Raster, poly: Pt[], bbox: ReturnType<typeof bboxOf>) {
   const x0 = Math.max(0, bbox.x), y0 = Math.max(0, bbox.y);
