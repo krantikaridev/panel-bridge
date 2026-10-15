@@ -10,8 +10,10 @@ import { readPng, writePng } from "./lib/image.mjs";
 import { detect, TYPE_COLOR, type BubbleType } from "./lib/detect.mts";
 import { render, clone } from "./lib/render.mts";
 
-const TITLE_ID = process.env.M1_TITLE_ID || "817032"; // 열렙전사 EARTH GAME
-const NO = process.env.M1_NO || "1"; // chapter 1 (trust the URL no, per the reader URL
+import { CURRENT } from "./config.mjs";
+
+const TITLE_ID = process.env.M1_TITLE_ID || CURRENT.defaultTitleId;
+const NO = process.env.M1_NO || CURRENT.defaultNo;
 const WORK = resolve(import.meta.dirname, "../work");
 const CUTS = resolve(WORK, "cuts");
 const OUT = resolve(WORK, "outlined");
