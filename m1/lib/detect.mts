@@ -128,9 +128,11 @@ function covered(x: number, y: number, polys: Pt[][]) {
   return false;
 }
 
-// Type 4: achromatic glyph strokes (black or white text) sitting on colourful art,
-// outside any balloon. Achromatic-strong mask -> dilate -> components -> keep the ones
-// whose padded neighbourhood is mostly colourful and that are text-shaped.
+// Type 4: achromatic glyph strokes (black or white text) outside any balloon.
+// Dropped the colourful-neighbourhood gate so monochrome / black-and-white pages
+// (typical Korean webtoon) are covered. Glyph components are merged into text
+// boxes; nearby boxes that form a larger rectangular region are promoted to a
+// single caption/panel box (still type 4).
 export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
   const { width: W, height: H } = img;
   const strong = new Uint8Array(W * H);
@@ -139,7 +141,7 @@ export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
       const { r, g, b } = px(img, x, y);
       const L = luma(r, g, b), C = chroma(r, g, b);
       const achromatic = C < 45;
-      if (achromatic && (L < 55 || L > 210) && !covered(x, y, balloonPolys)) strong[y * W + x] = 1;
+      if (achromatic && (L < 30 || L > 220) && !covered(x, y, balloonPolys)) strong[y * W + x] = 1;
     }
 
   // dilate to merge glyph runs into utterances. Horizontal reach is wide (letter/line
@@ -158,13 +160,13 @@ export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
     }
 
   const seen = new Uint8Array(W * H);
-  const out: Detection[] = [];
+  const raw: { sx0: number; sy0: number; sx1: number; sy1: number; glyph: number }[] = [];
   const stack: number[] = [];
   for (let i = 0; i < dil.length; i++) {
     if (!dil[i] || seen[i]) continue;
     seen[i] = 1; stack.push(i);
     let minX = W, minY = H, maxX = 0, maxY = 0, area = 0, glyph = 0;
-    let sx0 = W, sy0 = H, sx1 = 0, sy1 = 0; // tight bbox over actual glyph pixels
+    let sx0 = W, sy0 = H, sx1 = 0, sy1 = 0;
     while (stack.length) {
       const p = stack.pop()!; area++;
       const x = p % W, y = (p / W) | 0;
@@ -184,16 +186,12 @@ export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
         }
     }
     const sw = sx1 - sx0, sh = sy1 - sy0;
-    if (area < 90 || glyph < 40) continue;
-    // Text runs are wide and short. Round/-square blobs (glowing art, highlights,
-    // speed-line cores) are the main type-4 false positive — reject on aspect + size.
-    if (sw < 40 || sh < 10 || sh > 90) continue;
-    if (sw / sh < 1.4) continue;
-    if (sw > W * 0.95 || sh > H * 0.5) continue;
-    // solid-fill rejection: a filled shadow/box has ~all pixels dark, text has strokes and gaps
+    if (area < 60 || glyph < 30) continue;
+    if (sw < 30 || sh < 8 || sh > 150) continue;
+    if (sw / sh < 1.1) continue;
+    if (sw > W * 0.95 || sh > H * 0.6) continue;
     const fill = glyph / Math.max(1, sw * sh);
-    if (fill > 0.82 || fill < 0.05) continue;
-    // require several glyph columns across the run (a real text line breaks up horizontally)
+    if (fill > 0.82 || fill < 0.04) continue;
     let cols = 0, prevIn = false;
     for (let x = sx0; x <= sx1; x++) {
       let any = false;
@@ -201,20 +199,49 @@ export function detectBareText(img: Raster, balloonPolys: Pt[][]): Detection[] {
       if (any && !prevIn) cols++;
       prevIn = any;
     }
-    if (cols < 4) continue;
-    // colourful-art neighbourhood test (dialogue on the art, not on a white page)
-    const pad = Math.max(6, Math.round(sh * 0.5));
-    let nb = 0, colorfulNb = 0;
-    for (let y = Math.max(0, sy0 - pad); y <= Math.min(H - 1, sy1 + pad); y += 2)
-      for (let x = Math.max(0, sx0 - pad); x <= Math.min(W - 1, sx1 + pad); x += 2) {
-        const { r, g, b } = px(img, x, y);
-        nb++; if (chroma(r, g, b) >= 55) colorfulNb++;
+    if (cols < 2) continue;
+    raw.push({ sx0, sy0, sx1, sy1, glyph });
+  }
+
+  // Merge nearby raw text boxes into caption/panel boxes when they form a larger
+  // rectangular region (system UI / narration panels that were previously shredded).
+  const merged: typeof raw = [];
+  const used = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) {
+    if (used[i]) continue;
+    let box = { ...raw[i] };
+    used[i] = 1;
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (let j = 0; j < raw.length; j++) {
+        if (used[j]) continue;
+        const o = raw[j];
+        const gapX = Math.max(0, Math.max(box.sx0, o.sx0) - Math.min(box.sx1, o.sx1));
+        const gapY = Math.max(0, Math.max(box.sy0, o.sy0) - Math.min(box.sy1, o.sy1));
+        const maxGap = 28;
+        if (gapX < maxGap && gapY < maxGap && Math.abs((box.sy0 + box.sy1) / 2 - (o.sy0 + o.sy1) / 2) < 60) {
+          box.sx0 = Math.min(box.sx0, o.sx0);
+          box.sy0 = Math.min(box.sy0, o.sy0);
+          box.sx1 = Math.max(box.sx1, o.sx1);
+          box.sy1 = Math.max(box.sy1, o.sy1);
+          box.glyph += o.glyph;
+          used[j] = 1;
+          changed = true;
+        }
       }
-    if (nb === 0 || colorfulNb / nb < 0.55) continue;
+    }
+    merged.push(box);
+  }
+
+  const out: Detection[] = [];
+  for (const b of merged) {
+    const sw = b.sx1 - b.sx0, sh = b.sy1 - b.sy0;
+    if (sw < 40 || sh < 12) continue;
     const poly: Pt[] = [
-      [sx0, sy0], [sx1, sy0], [sx1, sy1], [sx0, sy1],
+      [b.sx0, b.sy0], [b.sx1, b.sy0], [b.sx1, b.sy1], [b.sx0, b.sy1],
     ];
-    out.push({ type: 4, polygon: poly, bbox: { x: sx0, y: sy0, w: sw, h: sh } });
+    out.push({ type: 4, polygon: poly, bbox: { x: b.sx0, y: b.sy0, w: sw, h: sh } });
   }
   return out;
 }

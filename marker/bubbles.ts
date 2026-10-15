@@ -133,6 +133,40 @@ function dilate(src: Uint8Array, w: number, h: number): Uint8Array {
   return out;
 }
 
+// Morphological closing (dilate then erode) with a small square kernel to fill
+// glyph-sized holes inside white balloon interiors without merging separate regions.
+function close(src: Uint8Array, w: number, h: number, r = 3): Uint8Array {
+  const dilated = new Uint8Array(src.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!src[y * w + x]) continue;
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy >= 0 && xx >= 0 && yy < h && xx < w) dilated[yy * w + xx] = 1;
+        }
+      }
+    }
+  }
+  const closed = new Uint8Array(src.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let all = true;
+      for (let dy = -r; dy <= r && all; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy < 0 || xx < 0 || yy >= h || xx >= w || !dilated[yy * w + xx]) {
+            all = false;
+            break;
+          }
+        }
+      }
+      if (all) closed[y * w + x] = 1;
+    }
+  }
+  return closed;
+}
+
 function paintPolygon(mask: Uint8Array, maskW: number, maskH: number, polygon: Pt[]) {
   if (polygon.length < 3) return;
   let minY = maskH;
